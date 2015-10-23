@@ -2,6 +2,7 @@ var smartspace = require("../../index");
 var tests = require("./fixtures/rules");
 var chai = require("chai");
 var Bluebird = require("bluebird");
+var parse = smartspace.parser.parse;
 chai.should();
 
 describe("integration", function(){
@@ -54,5 +55,43 @@ describe("integration", function(){
         application.updateProvider(test.updates[j]);
       }
     })
-  })
+  });
+
+  it("no response expected when no rule", function(done){
+    setTimeout(function(){done()}, 250);
+    var application = new smartspace.Application({logLevel:"silent"});
+    application.addProvider({id:"test", classes:[]}, function(){done(new Error("should not have happened"))});
+    application.updateProvider({provider:"test", predicate:"stop(True)", groundings:["true"]});
+  });
+
+  it("no response expected when no matching predicate", function(done){
+    setTimeout(function(){done()}, 250);
+    var application = new smartspace.Application({logLevel:"silent"});
+    application.addProvider({id:"test", classes:[]}, function(){done(new Error("should not have happened"))});
+    application.addRule(parse("{test1} test(State) start ->\n" +
+    "test" +
+    "\n -> {test1} test(State) done"));
+    application.updateProvider({provider:"test", predicate:"stop(True)", groundings:["true"]});
+  });
+
+  it("should not double fire", function(done){
+    var fired = false;
+    setTimeout(function(){
+      done()
+    }, 250);
+    var application = new smartspace.Application({logLevel:"silent"});
+    application.addProvider({id:"test", classes:[]}, function(){
+      if(fired)
+        done(new Error("should not have happened"))
+      else
+        fired = true;
+    });
+    application.addRule(parse("{test} test(State) start ->\n" +
+    "test" +
+    "\n -> {test} test(State) done"));
+    application.updateProvider({provider:"test", predicate:"test(State)", groundings:["start"]});
+    application.updateProvider({provider:"test", predicate:"test(State)", groundings:["start"]});
+  });
+
+
 });

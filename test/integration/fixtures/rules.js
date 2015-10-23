@@ -239,4 +239,26 @@ module.exports = [
       "test2": ["test(State)", ["done"], [2]]
     }
   },
+  {
+    id:"ruleOverwrite",
+    providers :{
+      "test1":[]
+    },
+    updates:[
+      {provider:"test1", predicate:"test(State)", groundings:["start"], payload:1}
+    ],
+    rules:[parse("{test1} test(State) stop ->\n" +
+    "test" +
+    "\n -> {test1} test(State) done"),
+    parse("{test1} test(State) start ->\n" +
+    "test" +
+    "\n -> {test1} test(State) done"),
+    parse("{test1} test(Dummy) start ->\n" +
+    "test1" +
+    "\n -> {test1} test(State) done")
+    ],
+    expects:{
+      "test1": ["test(State)", ["done"], [1]]
+    }
+  }
 ]
