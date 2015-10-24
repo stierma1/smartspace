@@ -58,14 +58,14 @@ describe("integration", function(){
   });
 
   it("no response expected when no rule", function(done){
-    setTimeout(function(){done()}, 250);
+    setTimeout(function(){done()}, 100);
     var application = new smartspace.Application({logLevel:"silent"});
     application.addProvider({id:"test", classes:[]}, function(){done(new Error("should not have happened"))});
     application.updateProvider({provider:"test", predicate:"stop(True)", groundings:["true"]});
   });
 
   it("no response expected when no matching predicate", function(done){
-    setTimeout(function(){done()}, 250);
+    setTimeout(function(){done()}, 100);
     var application = new smartspace.Application({logLevel:"silent"});
     application.addProvider({id:"test", classes:[]}, function(){done(new Error("should not have happened"))});
     application.addRule(parse("{test1} test(State) start ->\n" +
@@ -78,7 +78,7 @@ describe("integration", function(){
     var fired = false;
     setTimeout(function(){
       done()
-    }, 250);
+    }, 100);
     var application = new smartspace.Application({logLevel:"silent"});
     application.addProvider({id:"test", classes:[]}, function(){
       if(fired)
@@ -93,5 +93,19 @@ describe("integration", function(){
     application.updateProvider({provider:"test", predicate:"test(State)", groundings:["start"]});
   });
 
+  it("should remove rule", function(done){
+    setTimeout(function(){
+      done();
+    }, 100);
+    var application = new smartspace.Application({logLevel:"silent"});
+    application.addProvider({id:"test", classes:[]}, function(){
+      done(new Error("should not have happened"))
+    });
 
+    application.addRule(parse("{test} test(State) start ->\n" +
+    "test" +
+    "\n -> {test} test(State) done"));
+    application.removeRule("test");
+    application.updateProvider({provider:"test", predicate:"test(State)", groundings:["start"]});
+  });
 });
