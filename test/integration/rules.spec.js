@@ -108,4 +108,19 @@ describe("integration", function(){
     application.removeRule("test");
     application.updateProvider({provider:"test", predicate:"test(State)", groundings:["start"]});
   });
+
+  it("should serialize to Json", function(done){
+    var application = new smartspace.Application({logLevel:"silent"});
+    var parsed = parse("{test} test(State) start ->\n" +
+    "test" +
+    "\n -> {test} test(State) done");
+    application.addRule(parsed);
+    var serialize = JSON.parse(application.serializeRules());
+    serialize.should.have.property("length").equals(1);
+    parsed.id.should.equal(serialize[0].id);
+    parsed.inputCtxRules[0].provider.provider.should.equal(serialize[0].inputCtxRules[0].provider.provider);
+    parsed.outputCtxRules[0].provider.provider.should.equal(serialize[0].outputCtxRules[0].provider.provider);
+    JSON.stringify(parsed).should.equal(JSON.stringify(serialize[0]));
+    done();
+  });
 });
